@@ -12,8 +12,11 @@ export default class App extends Component{
       //Clave:Valor
       personas: [],
       nombre: "",
+      email: "",
       buscarPersona: "",
-      respaldoPersonas: []
+      respaldoPersonas: [],
+      camposInvalidos: false,
+      mensajeError: ""
     }
   }
 
@@ -29,25 +32,61 @@ export default class App extends Component{
 
   //Al utilizar las funciones de flecha el contexto será el mismo en el que se declaró
   agregarTarjeta = () => {
-    let personasModificadas = this.state.personas;
-    personasModificadas.push({
-      "id": 1,
-      "name": this.state.nombre,
-      "username": "Bret",
-      "email": "Sincere@april.biz",
-    });
-    this.setState({personas: personasModificadas});
-    this.setState({respaldoPersonas: personasModificadas});    
-  }
 
-  // saludo(){
-  //   Recuerda colocar el bind(this) dentro del constructor
-  //   this.saludo = this.saludo.bind(this)
-  //   console.log(this.state.nombre);
-  // }
+    let buscarPersonaArray = this.state.personas;
+
+    if(this.state.nombre.length > 0 && this.state.email.length > 0){
+      buscarPersonaArray = buscarPersonaArray.filter( 
+        persona => persona.name.includes(this.state.nombre)
+      );
+
+      if(buscarPersonaArray.length === 0){
+        let personasModificadas = this.state.personas;
+        let arregloIndices = this.state.personas.map( persona => persona.id);
+        let indice = arregloIndices[arregloIndices.length-1] + 1; 
+        
+        personasModificadas.push({
+          "id": indice,
+          "name": this.state.nombre,
+          "username": "Bret",
+          "email": this.state.email,    
+        });
+    
+        //Agregar los nuevos estados
+        this.setState({personas: personasModificadas});
+        this.setState({respaldoPersonas: personasModificadas});   
+        
+        //Quitar el valor actual para los dos componentes de texto
+        this.setState({nombre: ""});
+        this.setState({email: ""});
+      }else{
+        console.log("Ya existe este usuario");
+      }
+    }else{
+      alert("Hay campos vacios");
+      this.setState({camposInvalidos: true});
+      this.setState({mensajeError: "Completa este campo"});
+    }
+  }
 
   obtenerPersona = (event) => {    
     this.setState({nombre: event.target.value});
+    if(event.target.value.length > 0){
+      this.setState({camposInvalidos: false});
+      this.setState({mensajeError: ""});
+    }else{
+      this.setState({camposInvalidos: true});
+    }
+  }
+
+  obtenerEmail = (event) => {    
+    this.setState({email: event.target.value});
+    if(event.target.value.length > 0){
+      this.setState({camposInvalidos: false});
+      this.setState({mensajeError: ""});
+    }else{
+      this.setState({camposInvalidos: true});
+    }
   }
 
   buscarPersona = (event) => {
@@ -64,7 +103,16 @@ export default class App extends Component{
   }
 
   borrarPersona = (event, id) => {
-    console.log("Estás tratando de borrar la tarjeta no.", id);
+    //Obtenemos el indice donde se encuentra el id de la persona que queremos borrar
+    // let getPersonaIndex = this.state.personas.findIndex( persona => persona.id === id);
+    let getPersonaIndex = this.state.personas.map( persona => persona.id );
+    getPersonaIndex = getPersonaIndex.indexOf(id);
+    //Creamos una copia del arreglo para poder manipularlo posteriormente
+    let arregloPersonas = this.state.personas;
+    //Eliminamos el elemento dentro del arreglo
+    arregloPersonas.splice(getPersonaIndex, 1);
+    //Agregamos el nuevo estado para personas
+    this.setState({personas: arregloPersonas});
   }
 
   render(){
@@ -74,7 +122,12 @@ export default class App extends Component{
         <PanelContainer 
           funcionAgregar={this.agregarTarjeta} 
           funcionObtenerPersona={this.obtenerPersona}
-          funcionBuscarPersona={this.buscarPersona} 
+          funcionObtenerEmail={this.obtenerEmail}
+          funcionBuscarPersona={this.buscarPersona}
+          nombre={this.state.nombre}
+          email={this.state.email}
+          validacion={this.state.camposInvalidos}
+          mensajeError={this.state.mensajeError}
         />
         <CardContainer 
           personas={this.state.personas}

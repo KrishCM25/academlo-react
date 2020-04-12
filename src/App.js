@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import './App.css';
 import Header from './components/header/header-component';
 import PanelContainer from './components/panel/panel-container-component';
 import CardContainer from './components/card-container/card-container-component';
 import Container from '@material-ui/core/Container';
 
-export default class App extends React.Component{
+export default class App extends Component{
   constructor(){
     super();
     this.state = {
@@ -34,7 +34,7 @@ export default class App extends React.Component{
       "id": 1,
       "name": this.state.nombre,
       "username": "Bret",
-      "email": "Sincere@april.biz",    
+      "email": "Sincere@april.biz",
     });
     this.setState({personas: personasModificadas});
     this.setState({respaldoPersonas: personasModificadas});    
